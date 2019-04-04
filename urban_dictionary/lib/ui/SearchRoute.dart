@@ -4,6 +4,8 @@ import 'package:urban_dictionary/bloc/WordInfoState.dart';
 import 'package:urban_dictionary/entities/UrbanWordInfo.dart';
 
 class SearchRoute extends StatefulWidget {
+  String wordForSearch;
+
   @override
   State<StatefulWidget> createState() {
     return _SearchRouteWidget();
@@ -17,6 +19,12 @@ class _SearchRouteWidget extends State<SearchRoute> {
   @override
   void initState() {
     _searchBloc = SearchBloc();
+    if (widget.wordForSearch != null && widget.wordForSearch.isNotEmpty) {
+      setState(() {
+        textFieldController.text = widget.wordForSearch;
+        _searchBloc.getWordInfo(widget.wordForSearch);
+      });
+    }
     super.initState();
   }
 
@@ -76,6 +84,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
               color: Colors.lightBlue,
               textColor: Colors.white,
               onPressed: () {
+                widget.wordForSearch = textFieldController.text;
                 _searchBloc.getWordInfo(textFieldController.text);
               },
             ),
