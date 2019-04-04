@@ -24,7 +24,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
     return Container(
       alignment: AlignmentDirectional.topCenter,
       child: Column(
-        children: <Widget>[_buildWordArea(), _buildDescriptionArea(List())],
+        children: <Widget>[_buildWordArea(), _defineUrbanWordStream()],
       ),
     );
   }
@@ -89,7 +89,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
     );
   }
 
-  Widget defineUrbanWordStream() {
+  Widget _defineUrbanWordStream() {
     return StreamBuilder<List<UrbanWordInfo>>(
       stream: _searchBloc.urbanWordInfo,
       initialData: List(),
@@ -97,6 +97,8 @@ class _SearchRouteWidget extends State<SearchRoute> {
         if (snapshot.data.isNotEmpty) {
           List<UrbanWordInfo> state = snapshot.data;
           return _buildDescriptionArea(state);
+        } else {
+          return Container();
         }
       },
     );

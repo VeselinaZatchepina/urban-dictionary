@@ -19,4 +19,10 @@ class UrbanWordInfo {
   @override
   int get hashCode =>
       word.hashCode ^ description.hashCode ^ example.hashCode ^ author.hashCode;
+
+  @override
+  String toString() {
+    return 'UrbanWordInfo{word: $word, description: $description, example: $example, author: $author}';
+  }
+
 }

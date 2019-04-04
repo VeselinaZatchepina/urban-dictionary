@@ -10,8 +10,9 @@ class SearchBloc {
 
   void getWordInfo(String word) {
     _repository.getWordInfo(word).then((urbanWord) {
+      List<UrbanWordInfo> list  = urbanWord;
       _userStreamController.sink.add(urbanWord);
-    });
+  });
   }
 
   void dispose() {
