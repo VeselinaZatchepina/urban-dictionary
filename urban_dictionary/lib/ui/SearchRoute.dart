@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_dictionary/bloc/SearchBloc.dart';
+import 'package:urban_dictionary/bloc/WordInfoState.dart';
 import 'package:urban_dictionary/entities/UrbanWordInfo.dart';
 
 class SearchRoute extends StatefulWidget {
@@ -40,25 +41,25 @@ class _SearchRouteWidget extends State<SearchRoute> {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
       child: Card(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 50.0),
-            child: Container(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding:
+        padding: const EdgeInsets.only(bottom: 50.0),
+        child: Container(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding:
                     const EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          labelText: "Enter word for search",
-                          border: OutlineInputBorder()),
-                          controller: textFieldController,
-                    ),
-                  ),
-                  _buildWordButtonArea()
-                ],
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      labelText: "Enter word for search",
+                      border: OutlineInputBorder()),
+                  controller: textFieldController,
+                ),
               ),
-            ),
-          )),
+              _buildWordButtonArea()
+            ],
+          ),
+        ),
+      )),
     );
   }
 
@@ -90,17 +91,47 @@ class _SearchRouteWidget extends State<SearchRoute> {
   }
 
   Widget _defineUrbanWordStream() {
-    return StreamBuilder<List<UrbanWordInfo>>(
+    return StreamBuilder<WordInfoState>(
       stream: _searchBloc.urbanWordInfo,
-      initialData: List(),
+      initialData: WordInfoState.init(),
       builder: (context, snapshot) {
-        if (snapshot.data.isNotEmpty) {
-          List<UrbanWordInfo> state = snapshot.data;
-          return _buildDescriptionArea(state);
-        } else {
+        if (snapshot.data is WordInfoInit) {
           return Container();
         }
+
+        if (snapshot.data is WordInfoLoading) {
+          return _buildLoading();
+        }
+
+        if (snapshot.data is WordInfoError) {
+          return _buildError();
+        }
+
+        if (snapshot.data is WordInfoSuccess) {
+          WordInfoSuccess wordInfoSuccess = snapshot.data;
+          if (wordInfoSuccess.urbanWordInfos.isNotEmpty) {
+            return _buildDescriptionArea(wordInfoSuccess.urbanWordInfos);
+          } else {
+            return _buildError();
+          }
+        }
       },
+    );
+  }
+
+  Widget _buildLoading() {
+    return Expanded(
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildError() {
+    return Expanded(
+      child: Center(
+        child: Text('Ooops...we can\'t find such word'),
+      ),
     );
   }
 
@@ -109,7 +140,10 @@ class _SearchRouteWidget extends State<SearchRoute> {
       child: Padding(
         padding: const EdgeInsets.only(left: 60.0, right: 60.0, top: 0.0),
         child: Center(
-          child: ListView.builder(
+          child: ListView.separated(
+              separatorBuilder: (context, index) => Divider(
+                    color: Colors.lightBlue,
+                  ),
               itemCount: urbanWordInfos.length,
               itemBuilder: (BuildContext context, int index) {
                 return _buildListViewItem(urbanWordInfos[index]);
@@ -122,20 +156,34 @@ class _SearchRouteWidget extends State<SearchRoute> {
   Widget _buildListViewItem(UrbanWordInfo urbanWordInfo) {
     return Padding(
       padding:
-      const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
+          const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
       child: Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Text(
+              "Definition:",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             Text(urbanWordInfo.description),
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                "Example:",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
               child: Text(urbanWordInfo.example),
             ),
             Align(
                 alignment: Alignment.centerRight,
                 child: Container(
-                  child: Text(urbanWordInfo.author),
+                  child: Text(
+                    urbanWordInfo.author,
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 ))
           ],
         ),

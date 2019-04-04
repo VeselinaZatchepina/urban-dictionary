@@ -1,3 +1,4 @@
+import 'package:urban_dictionary/bloc/WordInfoState.dart';
 import 'package:urban_dictionary/entities/UrbanWordInfo.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as json;
@@ -6,7 +7,7 @@ import 'package:urban_dictionary/repositories/Converters.dart';
 class UrbanDictionaryRepository {
   final String baseUrl = "http://api.urbandictionary.com/v0";
 
-  Future<List<UrbanWordInfo>> getWordInfo(String word) async {
+  Future<WordInfoState> getWordInfo(String word) async {
     List<UrbanWordInfo> urbanWordInfos = List();
     final response = await http.get("$baseUrl/define?term=$word");
 
@@ -18,10 +19,10 @@ class UrbanDictionaryRepository {
         urbanWordInfos.add(urbanWordInfo);
         print(urbanWordInfo);
       }
-      return urbanWordInfos;
+      return WordInfoState.success(urbanWordInfos);
     } else {
       print("Exception...or No data...");
-      return null;
+      return WordInfoState.error();
     }
   }
 }
