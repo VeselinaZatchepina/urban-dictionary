@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:urban_dictionary/bloc/WordInfoState.dart';
-import 'package:urban_dictionary/repositories/UrbanDictionaryRepository.dart';
+import 'package:urban_dictionary/repositories/UrbanDictionaryRepositoryImpl.dart';
 
 class SearchBloc {
-  UrbanDictionaryRepository _repository = UrbanDictionaryRepository();
+  UrbanDictionaryRepositoryImpl _repository = UrbanDictionaryRepositoryImpl();
   final _userStreamController = StreamController<WordInfoState>();
 
   Stream<WordInfoState> get urbanWordInfo => _userStreamController.stream;
