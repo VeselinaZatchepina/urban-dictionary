@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_dictionary/ui/enums/RouteTag.dart';
 import 'package:urban_dictionary/ui/WordListWidget.dart';
 
 class HistoryRoute extends StatefulWidget {
@@ -11,11 +12,9 @@ class HistoryRoute extends StatefulWidget {
 class _HistoryRouteState extends State<HistoryRoute> {
   @override
   Widget build(BuildContext context) {
-    return Flex(direction: Axis.vertical,
-        children: <Widget>[
-        WordListWidget()
-      ],
+    return Flex(
+      direction: Axis.vertical,
+      children: <Widget>[WordListWidget(RouteTag.HISTORY)],
     );
   }
-
 }

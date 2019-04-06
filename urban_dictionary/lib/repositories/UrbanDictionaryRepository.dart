@@ -1,10 +1,12 @@
 import 'package:urban_dictionary/bloc/WordInfoState.dart';
 
-
 abstract class UrbanDictionaryRepository {
 
-  Future<WordInfoState> getWordInfo(String word);
+  Future<WordInfoState> getUrbanWordInfo(String word, {bool saveToHistory});
 
-  Future<WordInfoState> getHistoryWordInfo();
+  Future<WordInfoState> getHistoryUrbanWordInfo();
 
+  Future<int> addUrbanWordInfoToFavorites();
+
+  Future<WordInfoState> getFavoritesUrbanWordInfo();
 }

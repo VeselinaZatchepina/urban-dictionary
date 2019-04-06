@@ -24,5 +24,4 @@ class UrbanWordInfo {
   String toString() {
     return 'UrbanWordInfo{word: $word, description: $description, example: $example, author: $author}';
   }
-
 }

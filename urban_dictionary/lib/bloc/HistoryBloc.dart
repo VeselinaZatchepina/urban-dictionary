@@ -4,18 +4,18 @@ import 'package:urban_dictionary/repositories/UrbanDictionaryRepositoryImpl.dart
 
 class HistoryBloc {
   UrbanDictionaryRepositoryImpl _repository = UrbanDictionaryRepositoryImpl();
-  final _wordInfoStreamController = StreamController<WordInfoState>();
+  final _historyWordsInfoStreamController = StreamController<WordInfoState>();
 
-  Stream<WordInfoState> get wordInfoStream => _wordInfoStreamController.stream;
+  Stream<WordInfoState> get historyWordInfoStream => _historyWordsInfoStreamController.stream;
 
-  void getWordInfo() {
-    _wordInfoStreamController.sink.add(WordInfoState.loading());
-    _repository.getHistoryWordInfo().then((urbanWordStatus) {
-      _wordInfoStreamController.sink.add(urbanWordStatus);
+  void getHistoryWordInfo() {
+    _historyWordsInfoStreamController.sink.add(WordInfoState.loading());
+    _repository.getHistoryUrbanWordInfo().then((urbanWordStatus) {
+      _historyWordsInfoStreamController.sink.add(urbanWordStatus);
     });
   }
 
   void dispose() {
-    _wordInfoStreamController.close();
+    _historyWordsInfoStreamController.close();
   }
 }

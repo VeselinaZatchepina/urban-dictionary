@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:urban_dictionary/bloc/FavoritesBloc.dart';
 import 'package:urban_dictionary/bloc/HistoryBloc.dart';
 import 'package:urban_dictionary/bloc/WordInfoState.dart';
 import 'package:urban_dictionary/entities/UrbanWordInfo.dart';
+import 'package:urban_dictionary/ui/enums/RouteTag.dart';
 
 class WordListWidget extends StatefulWidget {
+  final RouteTag routeTag;
+
+  WordListWidget(this.routeTag);
+
   @override
   State<StatefulWidget> createState() {
     return WordListWidgetState();
@@ -12,6 +18,7 @@ class WordListWidget extends StatefulWidget {
 
 class WordListWidgetState extends State<WordListWidget> {
   HistoryBloc _historyBloc;
+  FavoritesBloc _favoritesBloc;
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +27,20 @@ class WordListWidgetState extends State<WordListWidget> {
 
   @override
   void initState() {
-    _historyBloc = HistoryBloc();
-    _historyBloc.getWordInfo();
+    if (widget.routeTag == RouteTag.HISTORY) {
+      _historyBloc = HistoryBloc();
+      _historyBloc.getHistoryWordInfo();
+    } else {
+      _favoritesBloc = FavoritesBloc();
+      _favoritesBloc.getFavoritesWordInfo();
+    }
     super.initState();
   }
 
   Widget _defineUrbanWordStream() {
     return StreamBuilder<WordInfoState>(
-      stream: _historyBloc.wordInfoStream,
+      stream: _historyBloc?.historyWordInfoStream ??
+          _favoritesBloc.favoritesWordInfo,
       initialData: WordInfoState.init(),
       builder: (context, snapshot) {
         if (snapshot.data is WordInfoInit) {
@@ -65,7 +78,7 @@ class WordListWidgetState extends State<WordListWidget> {
   Widget _buildError() {
     return Expanded(
       child: Center(
-        child: Text('Ooops...we can\'t find such word'),
+        child: Text('Ooops...list is empty'),
       ),
     );
   }
@@ -127,7 +140,7 @@ class WordListWidgetState extends State<WordListWidget> {
     return Container(
       child: Column(
         children: <Widget>[
-          Text(wordInfo.word,
+          Text(wordInfo.word.toUpperCase(),
               style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
           Divider(
             height: 16.0,

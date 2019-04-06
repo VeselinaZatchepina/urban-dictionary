@@ -8,7 +8,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Flutter Demo', home: RootWidget());
+    return MaterialApp(title: 'Urban Dictionary', home: RootWidget());
   }
 }
 
@@ -53,7 +53,8 @@ class RootWidgetState extends State<RootWidget> {
               title: new Text('History'),
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.favorite), title: Text('Favorites'))
+                icon: Icon(Icons.favorite),
+                title: Text('Favorites'))
           ],
         ));
   }
@@ -72,5 +73,4 @@ class RootWidgetState extends State<RootWidget> {
       _selectedContent = _pages[index];
     });
   }
-
 }

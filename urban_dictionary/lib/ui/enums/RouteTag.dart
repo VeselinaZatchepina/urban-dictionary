@@ -1,0 +1,1 @@
+enum RouteTag { FAVORITES, HISTORY }

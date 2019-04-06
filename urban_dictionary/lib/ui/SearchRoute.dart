@@ -22,7 +22,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
     if (widget.wordForSearch != null && widget.wordForSearch.isNotEmpty) {
       setState(() {
         textFieldController.text = widget.wordForSearch;
-        _searchBloc.getWordInfo(widget.wordForSearch);
+        _searchBloc.getWordInfo(widget.wordForSearch, false);
       });
     }
     super.initState();
@@ -49,25 +49,25 @@ class _SearchRouteWidget extends State<SearchRoute> {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
       child: Card(
           child: Padding(
-        padding: const EdgeInsets.only(bottom: 50.0),
-        child: Container(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding:
+            padding: const EdgeInsets.only(bottom: 50.0),
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding:
                     const EdgeInsets.only(left: 50.0, right: 50.0, top: 50.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                      labelText: "Enter word for search",
-                      border: OutlineInputBorder()),
-                  controller: textFieldController,
-                ),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                          labelText: "Enter word for search",
+                          border: OutlineInputBorder()),
+                      controller: textFieldController,
+                    ),
+                  ),
+                  _buildWordButtonArea()
+                ],
               ),
-              _buildWordButtonArea()
-            ],
-          ),
-        ),
-      )),
+            ),
+          )),
     );
   }
 
@@ -85,15 +85,11 @@ class _SearchRouteWidget extends State<SearchRoute> {
               textColor: Colors.white,
               onPressed: () {
                 widget.wordForSearch = textFieldController.text;
-                _searchBloc.getWordInfo(textFieldController.text);
+                _searchBloc.getWordInfo(textFieldController.text, true);
               },
             ),
           ),
-          RaisedButton(
-            child: Icon(Icons.favorite, color: Colors.red),
-            color: Colors.grey.shade200,
-            onPressed: () {},
-          )
+          _defineFavoritesButtonStream(),
         ],
       ),
     );
@@ -101,7 +97,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
 
   Widget _defineUrbanWordStream() {
     return StreamBuilder<WordInfoState>(
-      stream: _searchBloc.urbanWordInfo,
+      stream: _searchBloc.searchWordInfo,
       initialData: WordInfoState.init(),
       builder: (context, snapshot) {
         if (snapshot.data is WordInfoInit) {
@@ -128,6 +124,63 @@ class _SearchRouteWidget extends State<SearchRoute> {
     );
   }
 
+  Widget _defineFavoritesButtonStream() {
+    return StreamBuilder<WordInfoState>(
+      stream: _searchBloc.searchWordInfo,
+      initialData: WordInfoState.init(),
+      builder: (context, snapshot) {
+        if (snapshot.data is WordInfoInit) {
+          return createDisableBtn();
+        }
+
+        if (snapshot.data is WordInfoLoading) {
+          return createDisableBtn();
+        }
+
+        if (snapshot.data is WordInfoError) {
+          return createDisableBtn();
+        }
+
+        if (snapshot.data is WordInfoSuccess) {
+          WordInfoSuccess wordInfoSuccess = snapshot.data;
+          if (wordInfoSuccess.urbanWordInfos.isNotEmpty) {
+            return createActiveBtn();
+          } else {
+            return createDisableBtn();
+          }
+        }
+      },
+    );
+  }
+
+  Widget createDisableBtn() {
+    return RaisedButton(
+        child: Icon(Icons.favorite, color: Colors.red),
+        color: Colors.grey.shade200,
+        disabledColor: Colors.grey.shade200,
+        disabledElevation: 0.0,
+        disabledTextColor: Colors.grey.shade200,
+        onPressed: null);
+  }
+
+  Widget createActiveBtn() {
+    return RaisedButton(
+        child: Icon(Icons.favorite, color: Colors.red),
+    color: Colors.grey.shade200,
+    onPressed: () {
+          _searchBloc.addWordInfoToFavorites();
+          _searchBloc.addToFavoritesWordInfo.listen((id) {
+            SnackBar snackBar;
+            if (id != -1) {
+              snackBar = SnackBar(content: Text('Yay! Word added to favorites!'));
+            } else {
+              snackBar = SnackBar(content: Text('Oops! Something went wrong...'));
+            }
+            Scaffold.of(context).showSnackBar(snackBar);
+          });
+    });
+  }
+
   Widget _buildLoading() {
     return Expanded(
       child: Center(
@@ -150,7 +203,8 @@ class _SearchRouteWidget extends State<SearchRoute> {
         padding: const EdgeInsets.only(left: 60.0, right: 60.0, top: 0.0),
         child: Center(
           child: ListView.separated(
-              separatorBuilder: (context, index) => Divider(
+              separatorBuilder: (context, index) =>
+                  Divider(
                     color: Colors.lightBlue,
                   ),
               itemCount: urbanWordInfos.length,
@@ -165,7 +219,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
   Widget _buildListViewItem(UrbanWordInfo urbanWordInfo) {
     return Padding(
       padding:
-          const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
+      const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0, bottom: 8.0),
       child: Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

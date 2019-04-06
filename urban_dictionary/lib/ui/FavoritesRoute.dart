@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_dictionary/ui/enums/RouteTag.dart';
 import 'package:urban_dictionary/ui/WordListWidget.dart';
 
 class FavoritesRoute extends StatefulWidget {
@@ -14,7 +15,7 @@ class FavoritesRouteState extends State<FavoritesRoute> {
     return Flex(
       direction: Axis.vertical,
       children: <Widget>[
-        WordListWidget()
+        WordListWidget(RouteTag.FAVORITES)
       ],
     );
   }

@@ -2,25 +2,23 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:urban_dictionary/db/models/WordInfo.dart';
+import 'package:urban_dictionary/db/models/WordInfoModel.dart';
 
-class DbProvider {
-  DbProvider._();
+class DatabaseProvider {
+  DatabaseProvider._();
 
-  static final DbProvider dbProvider = DbProvider._();
+  static final DatabaseProvider dbProvider = DatabaseProvider._();
   static Database _database;
 
   Future<Database> get database async {
     if (_database != null) return _database;
-
-    // if _database is null we instantiate it
-    _database = await initDB();
+    _database = await initDatabase();
     return _database;
   }
 
-  initDB() async {
+  initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, "TestDB.db");
+    String path = join(documentsDirectory.path, "UrbanDictionary.db");
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE WordInfo ("
@@ -43,6 +41,7 @@ class DbProvider {
     });
   }
 
+  /// Добавление информации о последнем введенном слове в историю запросов.
   Future<int> addWordInfoToHistory(WordInfo wordInfo) async {
     final db = await database;
     var res = await db.transaction((txn) async {
@@ -59,14 +58,41 @@ class DbProvider {
     return res;
   }
 
+  /// Получение истории запросов.
   Future<List<WordInfo>> getWordInfoHistory() async {
     final db = await database;
     List<WordInfo> resultList = List();
-    List<Map> wordMaps = await db.rawQuery(
+    List<Map> wordHistoryMaps = await db.rawQuery(
         'SELECT * FROM WordInfo INNER JOIN WordHistory ON WordInfo.id = WordHistory.word_id ORDER BY WordInfo.id DESC');
-    for (Map mapInfo in wordMaps) {
-      resultList.add(WordInfo.fromJson(mapInfo));
+    for (Map mapWordInfo in wordHistoryMaps) {
+      resultList.add(WordInfo.fromJson(mapWordInfo));
     }
     return resultList;
   }
+
+  /// Добавление последнего введенного слова в избранное.
+  Future<int> addWordInfoToFavorites() async {
+    final db = await database;
+    var res = await db.transaction((txn) async {
+      List<Map> wordMaps =
+          await txn.rawQuery('SELECT * FROM WordInfo ORDER BY ID DESC LIMIT 1');
+      WordInfo wordInfo = WordInfo.fromJson(wordMaps.first);
+      await txn.rawInsert(
+          'INSERT Into WordFavorites(word_id) VALUES(?)', [wordInfo.id]);
+    });
+    return res;
+  }
+
+  /// Получение списка избранных слов.
+  Future<List<WordInfo>> getWordInfoFavorites() async {
+    final db = await database;
+    List<WordInfo> resultList = List();
+    List<Map> wordFavoritesMaps = await db.rawQuery(
+        'SELECT * FROM WordInfo INNER JOIN WordFavorites ON WordInfo.id = WordFavorites.word_id ORDER BY WordInfo.id DESC');
+    for (Map mapWordInfo in wordFavoritesMaps) {
+      resultList.add(WordInfo.fromJson(mapWordInfo));
+    }
+    return resultList;
+  }
+
 }
