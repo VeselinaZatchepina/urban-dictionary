@@ -88,10 +88,7 @@ class WordListWidgetState extends State<WordListWidget> {
       child: Padding(
         padding: const EdgeInsets.only(left: 60.0, right: 60.0, top: 0.0),
         child: Center(
-          child: ListView.separated(
-              separatorBuilder: (context, index) => Divider(
-                    color: Colors.lightBlue,
-                  ),
+          child: ListView.builder(
               itemCount: urbanWordInfos.length,
               itemBuilder: (BuildContext context, int index) {
                 return _buildListViewItem(urbanWordInfos[index]);

@@ -86,6 +86,7 @@ class _SearchRouteWidget extends State<SearchRoute> {
               onPressed: () {
                 widget.wordForSearch = textFieldController.text;
                 _searchBloc.getWordInfo(textFieldController.text, true);
+                FocusScope.of(context).detach();
               },
             ),
           ),
